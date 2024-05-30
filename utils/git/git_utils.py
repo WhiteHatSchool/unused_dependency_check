@@ -62,4 +62,4 @@ def clone_repo(hl_name: str, path: str) -> None:
         return
     print(f'Cloning {hl_name}...')
 
-    Repo.clone_from(get_hl_name2git_url(hl_name), path + hl_name)
+    Repo.clone_from(get_hl_name2git_url(hl_name), path)
