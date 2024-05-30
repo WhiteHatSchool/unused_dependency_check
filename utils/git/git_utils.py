@@ -58,8 +58,8 @@ def clone_repo(hl_name: str, path: str) -> None:
     :param path: 복사 할 경로
     :return: None
     """
-    if os.path.isdir(path + hl_name):
+    if os.path.exists(path):
         return
-    print(f'Cloning {hl_name}...')
+    print(f'Cloning {hl_name} >>> {path}...')
 
     Repo.clone_from(get_hl_name2git_url(hl_name), path)

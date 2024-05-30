@@ -8,13 +8,14 @@
 ```bash
 npm install -g @cyclonedx/cdxgen
 pip install -r requirements.txt
+mkdir sbom
 ```
 
 ## 실행 방법
 프로젝트를 실행하려면 터미널에서 다음 명령어를 입력하세요:
 
 ```bash
-python project_installer.py
+python project_installer.py -l <Language>
 ```
 
 ## 커밋 메시지 규칙

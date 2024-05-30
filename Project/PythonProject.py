@@ -9,14 +9,23 @@ class PythonProject(Project):
 
     def _check_dependency_file(self, ver):
         ver = self.sbom_version()
-        output_file_name_with_path = f'\"{ver}-{self.hl_name.replace("/", " ").replace(" ", "_")}.json\"'
+        output_file_name_with_path = f'sbom/{ver}-{self.hl_name.replace("/", " ").replace(" ", "_")}.json'
 
-        r = subprocess.run(
-            args=" ".join(f"cdxgen -o {output_file_name_with_path} -t python {self._local_dir_base}".split(" "))
-        )
+        try:
+            r = subprocess.run(
+                args=f"cdxgen -o {output_file_name_with_path} -t python {self._local_dir_base}",
+                executable='/bin/bash',
+                shell=True
+            )
 
-        if r.returncode != 0:
-            raise "SBOM is BOOOOM!"
+            if r.returncode != 0:
+                print(r.__dict__)
+                raise "SBOM is BOOOOM!"
+
+        except FileNotFoundError as e:
+            print(f"Command not found: {e.filename}")
+        except Exception as e:
+            print(e)
 
         if ver == "old":
             self.before_sbom_path = output_file_name_with_path

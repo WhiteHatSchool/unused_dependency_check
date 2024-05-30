@@ -17,7 +17,9 @@ class Project(ABC):
     def __init__(self, language: str, hl_name: str, base_dir: str = 'repository'):
         self._language = language
         self.hl_name = hl_name
-        self._local_dir_base = f'{base_dir}/{language}/{hl_name}'
+        self._local_dir_base = f'./{base_dir}/{language}/{hl_name}'
+        before_sbom_path = None
+        after_sbom_path = None
 
         clone_repo(hl_name, self._local_dir_base)
         self._check_dependency_file(self.sbom_version())
@@ -48,7 +50,7 @@ class Project(ABC):
         pass
 
     def sbom_version(self):
-        if not self.before_sbom_path:
+        if self.before_sbom_path is not None:
             return 'new'
         return 'old'
 
