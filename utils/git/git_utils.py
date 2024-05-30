@@ -12,7 +12,7 @@ def get_search_repo_list(language: str, page: int = 1) -> dict:
     :param page:
     :return: dict {"page_count": 페이지 수, "page": 검색한 page, "results": 검색 결과 리스트}
     """
-    URL = make_search_query(q=f"language:{language}", type='repositories', sort_by='stars', order='desc', page=page)
+    URL = make_search_query(q=f"language:{language}+", type='repositories', sort_by='stars', order='desc', page=page)
 
     request = requests.get(URL)
     json = request.json()['payload']

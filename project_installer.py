@@ -1,8 +1,29 @@
+from Project.PythonProject import PythonProject
 from Project.JavaProject import JavaProject
 from utils.git.git_utils import get_search_repo_list
 
+import argparse
+
+project_factory = {
+    "Java": JavaProject,
+    "Python": PythonProject
+}
+
 if __name__ == '__main__':
-    language = 'Java'
+    parser = argparse.ArgumentParser(description='input Project Type')
+
+    # Define options
+    parser.add_argument('-l', '--language', type=str, help='The Project Language')
+
+    args = parser.parse_args()
+
+    language = args.language
+
+    # check language is in project_factory key
+    if language not in project_factory.keys():
+        print(", ".join(project_factory.keys()))
+        exit(-1)
+
     repo_dir_base = 'repository'
     query_data = get_search_repo_list(language, page=1)
 
@@ -14,7 +35,5 @@ if __name__ == '__main__':
     project_list = []
 
     for hl_name in repo_hl_name_list:
-        project_list.append(JavaProject(hl_name))
+        project = project_factory[language](hl_name)
 
-    for project in project_list:
-        project.print_dependency()

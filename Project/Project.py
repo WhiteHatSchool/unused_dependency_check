@@ -7,24 +7,27 @@ from utils.git.git_utils import clone_repo
 
 
 class Project(ABC):
-    language: Union[str, None] = None
+    _language: str
+    _local_dir_base: str
     hl_name: str
-    local_dir_base: str
     before_sbom_path: Union[str, None] = None
     after_sbom_path: Union[str, None] = None
+    is_sbom_change: bool = True
 
     def __init__(self, language: str, hl_name: str, base_dir: str = 'repository'):
-        self.language = language
+        self._language = language
         self.hl_name = hl_name
-        self.local_dir_base = f'{base_dir}/{language}/{hl_name}'
+        self._local_dir_base = f'{base_dir}/{language}/{hl_name}'
 
-        clone_repo(hl_name, self.local_dir_base)
+        clone_repo(hl_name, self._local_dir_base)
+        self._check_dependency_file()
 
     def __delete__(self, instance):
-        shutil.rmtree(self.local_dir_base)
-        os.remove(self.before_sbom_path)
-        os.remove(self.after_sbom_path)
+        shutil.rmtree(self._local_dir_base)
 
+        if not self.is_sbom_change:
+            os.remove(self.before_sbom_path)
+            os.remove(self.after_sbom_path)
 
     @abstractmethod
     def _check_dependency_file(self):
@@ -43,6 +46,11 @@ class Project(ABC):
         :return:
         """
         pass
+
+    def sbom_version(self):
+        if not self.before_sbom_path:
+            return 'new'
+        return 'old'
 
     def print_dependency(self):
         if self.after_sbom_path is not None:
