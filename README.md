@@ -4,7 +4,9 @@
 
 프로젝트 환경을 구축하려면 터미널에서 다음 명령어를 실행하세요:
 
+
 ```bash
+npm install -g @cyclonedx/cdxgen
 pip install -r requirements.txt
 ```
 
