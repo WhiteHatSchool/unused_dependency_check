@@ -7,10 +7,8 @@ class PythonProject(Project):
     def __init__(self, hl_name: str, base_dir: str = 'repository'):
         super().__init__('Python', hl_name, base_dir)
 
-    def _check_dependency_file(self):
+    def _check_dependency_file(self, ver):
         ver = self.sbom_version()
-        if self.before_sbom_path is not None:
-            ver = "new"    
         output_file_name_with_path = f'\"{ver}-{self.hl_name.replace("/", " ").replace(" ", "_")}.json\"'
 
         r = subprocess.run(

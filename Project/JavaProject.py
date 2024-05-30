@@ -8,9 +8,8 @@ from utils.file import get_files
 class JavaProject(Project):
     def __init__(self, hl_name: str, base_dir: str = 'repository'):
         super().__init__('Java', hl_name, base_dir)
-        self._check_dependency_file()
 
-    def _check_dependency_file(self):
+    def _check_dependency_file(self, ver):
         subprocess.run(args="pwd")
         r = subprocess.run(args=f"mvn clean compile -P clean-exclude-wars -P enhance -P embedded-jetty -DskipTests -f {self._local_dir_base}".split(" "))
 
@@ -18,12 +17,12 @@ class JavaProject(Project):
             raise "Java Project Build Faild"
 
         ver = self.sbom_version()
-        type = "java" if self.check_gradle() else "gradle"
+        build_type = "java" if self.check_gradle() else "gradle"
 
         output_file_name_with_path = f'\"{ver}-{self.hl_name.replace("/", " ").replace(" ", "_")}.json\"'
 
         r = subprocess.run(
-            args=" ".join(f"cdxgen -o {output_file_name_with_path} -t {type} {self._local_dir_base}".split(" "))
+            args=" ".join(f"cdxgen -o {output_file_name_with_path} -t {build_type} {self._local_dir_base}".split(" "))
         )
 
         if r.returncode != 0:

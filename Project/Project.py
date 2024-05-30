@@ -20,7 +20,7 @@ class Project(ABC):
         self._local_dir_base = f'{base_dir}/{language}/{hl_name}'
 
         clone_repo(hl_name, self._local_dir_base)
-        self._check_dependency_file()
+        self._check_dependency_file(self.sbom_version())
 
     def __delete__(self, instance):
         shutil.rmtree(self._local_dir_base)
@@ -30,7 +30,7 @@ class Project(ABC):
             os.remove(self.after_sbom_path)
 
     @abstractmethod
-    def _check_dependency_file(self):
+    def _check_dependency_file(self, version: str):
         """
         cdxgen 이용 SBOM 을 통해 의존성을 체크
         언어마다 사전 명령어가 필요한 경우가 있으므로 반드시 하위 클래스에서 구현되도록 강제
