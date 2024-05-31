@@ -1,10 +1,17 @@
+import json
 import os
 import shutil
 from abc import abstractmethod, ABC
 from typing import Union
 
-from utils.git.git_utils import clone_repo
+from jycm.helper import dump_html_output
+from jycm.jycm import YouchamaJsonDiffer
+from starlette.config import Config
 
+from utils.git.git_utils import clone_repo
+from utils.git.github_utils import create_github_issue, get_github_repo
+
+config = Config('.env')
 
 class Project(ABC):
     _language: str
@@ -23,8 +30,17 @@ class Project(ABC):
 
         clone_repo(hl_name, self._local_dir_base)
         self._check_dependency_file(self.sbom_version())
+        self._linting()
+        self._check_dependency_file(self.sbom_version())
+        test = self.comparison_sbom()
+        if test is not None:
+            print(test)
+            with open(test, 'r') as content:
+                repo = get_github_repo(config('ACCESS_TOKEN'), config('ORG_NAME'), config('REPO_NAME'))
+                self.create_github_issue(repo, content)
+        self.__delete__()
 
-    def __delete__(self, instance):
+    def __delete__(self):
         shutil.rmtree(self._local_dir_base)
 
         if not self.is_sbom_change:
@@ -59,10 +75,23 @@ class Project(ABC):
             os.system(f'cat {self.after_sbom_path}')
         os.system(f'cat {self.before_sbom_path}')
 
-    def comparison_sbom(self) -> bool:
-        pass
+    def comparison_sbom(self) -> Union[str, None]:
+        if self.before_sbom_path is not None and self.after_sbom_path is not None:
+            with open(self.before_sbom_path) as old, open(self.after_sbom_path) as new:
+                left = json.load(old)
+                right = json.load(new)
 
-    def create_github_issue(self):
+                ycm = YouchamaJsonDiffer(left, right)
+                diff_result: dict = ycm.get_diff()
+
+                if len(diff_result.keys()) > 0:
+                    url = dump_html_output(left, right, diff_result, f"/tmp/{self.hl_name}")
+                    self.is_sbom_change = True
+                    return url
+                return None
+
+    def create_github_issue(self, repo, body):
+        create_github_issue(repo, title=f"[Demonstration] {self.hl_name}", body=body)
         pass
 
     def submit_dependency_track(self):
