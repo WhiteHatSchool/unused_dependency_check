@@ -33,5 +33,14 @@ class PythonProject(Project):
             self.after_sbom_path = output_file_name_with_path
 
     def _linting(self):
-        pass
+
+        try:
+            subprocess.run(
+                args="pip-compile",
+                cwd=self._local_dir_base,
+                check=True,
+                shell=True
+            )
+            
+    
 
