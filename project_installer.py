@@ -23,15 +23,12 @@ if __name__ == '__main__':
         print(", ".join(project_factory.keys()))
         exit(-1)
 
-    repo_dir_base = 'repository'
     query_data = get_search_repo_list(language, page=1)
 
     total_page = query_data['page_count']
     results = query_data['results']
 
     repo_hl_name_list = [result['hl_name'] for result in results]
-
-    project_list = []
 
     for hl_name in repo_hl_name_list:
         project = project_factory[language](hl_name)

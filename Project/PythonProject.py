@@ -4,16 +4,13 @@ from Project.Project import Project
 
 
 class PythonProject(Project):
-    def __init__(self, hl_name: str, base_dir: str = 'repository'):
-        super().__init__('Python', hl_name, base_dir)
+    def __init__(self, hl_name: str, base_dir: str = 'repository', sbom_base_path: str = 'sbom'):
+        super().__init__('Python', hl_name, base_dir, sbom_base_path)
 
-    def _check_dependency_file(self, ver):
-        ver = self.sbom_version()
-        output_file_name_with_path = f'sbom/{ver}-{self.hl_name.replace("/", " ").replace(" ", "_")}.json'
-
+    def _check_dependency_file(self, sbom_path):
         try:
             r = subprocess.run(
-                args=f"cdxgen -o {output_file_name_with_path} -t python {self._local_dir_base}",
+                args=f"cdxgen -o {sbom_path} -t python {self._local_dir_base}",
                 executable='/bin/bash',
                 shell=True
             )
@@ -27,10 +24,10 @@ class PythonProject(Project):
         except Exception as e:
             print(e)
 
-        if ver == "old":
-            self.before_sbom_path = output_file_name_with_path
+        if self.before_sbom_path is None:
+            self.before_sbom_path = sbom_path
         else:
-            self.after_sbom_path = output_file_name_with_path
+            self.after_sbom_path = sbom_path
 
     def _linting(self):
 
