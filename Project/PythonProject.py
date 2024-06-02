@@ -30,7 +30,6 @@ class PythonProject(Project):
             self.after_sbom_path = sbom_path
 
     def _linting(self):
-
         try:
             subprocess.run(
                 args="pip-compile",
@@ -38,6 +37,7 @@ class PythonProject(Project):
                 check=True,
                 shell=True
             )
-            
-    
-
+        except FileNotFoundError as e:
+            print(f"Command not found: {e.filename}")
+        except Exception as e:
+            print(e)
