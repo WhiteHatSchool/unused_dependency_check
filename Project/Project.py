@@ -38,6 +38,8 @@ class Project(ABC):
             with open(test, 'r') as content:
                 repo = get_github_repo(config('ACCESS_TOKEN'), config('ORG_NAME'), config('REPO_NAME'))
                 self.create_github_issue(repo, content)
+
+
         self.__delete__()
 
     def __delete__(self):
@@ -48,7 +50,7 @@ class Project(ABC):
             os.remove(self.after_sbom_path)
 
     @abstractmethod
-    def _check_dependency_file(self, version: str):
+    def _check_dependency_file(self, version: str) -> None:
         """
         cdxgen 이용 SBOM 을 통해 의존성을 체크
         언어마다 사전 명령어가 필요한 경우가 있으므로 반드시 하위 클래스에서 구현되도록 강제
@@ -57,7 +59,7 @@ class Project(ABC):
         pass
 
     @abstractmethod
-    def _linting(self):
+    def _linting(self) -> None:
         """
         린터를 이용하여 SBOM을 통해 불필요한 의존성 제거
         언어마다 사용할 수 있는 린터가 다르므로 반드시 하위 클래스에서 구현되도록 강제
@@ -65,12 +67,12 @@ class Project(ABC):
         """
         pass
 
-    def sbom_version(self):
+    def sbom_version(self) -> str:
         if self.before_sbom_path is not None:
             return 'new'
         return 'old'
 
-    def print_dependency(self):
+    def print_dependency(self) -> None:
         if self.after_sbom_path is not None:
             os.system(f'cat {self.after_sbom_path}')
         os.system(f'cat {self.before_sbom_path}')
@@ -90,13 +92,13 @@ class Project(ABC):
                     return url
                 return None
 
-    def create_github_issue(self, repo, body):
-        create_github_issue(repo, title=f"[Demonstration] {self.hl_name}", body=body)
+    def create_github_issue(self, repo, body) -> None:
+        create_github_issue(repo, title=f"[Demonstration] {self._language} Project: {self.hl_name}", body=body)
         pass
 
-    def submit_dependency_track(self):
+    def submit_dependency_track(self) -> None:
         pass
 
-    def build_test(self):
+    def build_test(self) -> None:
         pass
 
