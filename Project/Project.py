@@ -1,4 +1,4 @@
-import json
+import json, requests
 import os
 import shutil
 from abc import abstractmethod, ABC
@@ -40,6 +40,9 @@ class Project(ABC):
         if test is not None:
             print(test)
             with open(test, 'r') as content:
+                uuid = self.submit_dependency_track(self, "old")
+
+                uuid = self.submit_dependency_track(self, "new")
                 repo = get_github_repo(config('ACCESS_TOKEN'), config('ORG_NAME'), config('REPO_NAME'))
                 self.create_github_issue(repo, content)
 
@@ -102,8 +105,30 @@ class Project(ABC):
         create_github_issue(repo, title=f"[Demonstration] {self._language} Project: {self.hl_name}", body=body)
         pass
 
-    def submit_dependency_track(self) -> None:
-        pass
+    def submit_dependency_track(self, version: str) -> None:
+        url = f"{config('DEPENDENCY_TRACK_PROTOCOL')}://{config('DEPENDENCY_TRACK_HOST')}:{config('DEPENDENCY_TRACK_PORT')}/api/v1/project"
+        api_headers = {
+            "X-Api-Key": config('DEPENDENCY_API_KEY'),
+            "accept": "application/json"
+        }
+
+        data = {
+            "name": f"{self._language}-{self.hl_name}",
+            "version": version,
+            "parent": None,
+            "classifier": "APPLICATION",
+            "tags": [
+                {
+                    "name": self._language
+                }
+            ],
+            "active": True
+        }
+
+        res = requests.put(url, data=json.dumps(data), headers=api_headers)
+        uuid = json.load(res.text)['uuid']
+
+        return uuid
 
     def build_test(self) -> None:
         pass
